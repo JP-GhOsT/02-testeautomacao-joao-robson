@@ -1,0 +1,17 @@
+{
+  "name": "02-testeautomacaojoaorobson",
+  "version": "1.0.0",
+  "description": "**Pré-requisitos:** Noções básicas de teste de software, familiaridade com terminal/linha de comando",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.59.0",
+    "@types/node": "^25.5.0"
+  }
+}
