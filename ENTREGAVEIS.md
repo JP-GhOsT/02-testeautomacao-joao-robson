@@ -4,7 +4,7 @@
 **Dupla (se aplicável):** Robson dos Santos Damasceno Lisboa  
 **Data:** 02/04/2026  
 **Repositório (fork):** `https://github.com/JP-GhOsT/02-testeautomacao-joao-robson`  
-**GitHub Pages:** `https://<seu-usuario>.github.io/02-TesteAutomatizado/`
+**GitHub Pages:** `https://jp-ghost.github.io/02-testeautomacao-joao-robson/`
 
 ---
 
@@ -12,11 +12,11 @@
 
 | Item | Valor |
 |------|-------|
-| **URL do fork no GitHub** | `https://github.com/<seu-usuario>/02-TesteAutomatizado` |
-| **URL do site no GitHub Pages** | `https://<seu-usuario>.github.io/02-TesteAutomatizado/` |
+| **URL do fork no GitHub** | `https://github.com/JP-GhOsT/02-testeautomacao-joao-robson` |
+| **URL do site no GitHub Pages** | `https://jp-ghost.github.io/02-testeautomacao-joao-robson/` |
 | **Site está acessível e funcional?** | ☐ Sim / ☐ Não |
 
-**Evidência:** _(inserir screenshot do site QS Acadêmico funcionando no GitHub Pages)_
+**Evidência:** ![alt text](image.png)
 
 ---
 
@@ -35,7 +35,13 @@
 
 **Reflexão sobre o Codegen:** _(Que tipo de seletores o Codegen utilizou? São os mais indicados? Justifique.)_
 
-> _(escrever aqui)_
+> O Codegen do Playwright gerou seletores como getByLabel(), getByRole() e getByText().
+
+getByLabel() foi usado para preencher campos de formulário. É bom porque depende do texto do rótulo, que é fácil de ler e não muda com frequência.
+getByRole() foi usado para clicar em botões. Também é bom, porque usa o papel do elemento (role) e o texto visível, seguindo boas práticas de acessibilidade.
+getByText() foi usado para localizar mensagens ou textos na tela. Funciona, mas pode gerar problemas se o mesmo texto aparecer em mais de um lugar.
+
+Conclusão: Os seletores usados são legíveis e funcionam na maioria dos casos, mas para textos que aparecem várias vezes, é melhor usar um identificador único como data-testid para evitar conflitos.
 
 ### 2.2 Testes escritos manualmente
 
@@ -66,25 +72,25 @@
 
 ### 3.1 Relatório ANTES da correção do defeito
 
-**Evidência:** _(inserir screenshot ou PDF do relatório HTML mostrando testes que passaram e falharam)_
+**Evidência:** ![alt text](image-1.png)
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de testes** | |
-| **Testes aprovados (passed)** | |
-| **Testes reprovados (failed)** | |
-| **Navegadores testados** | |
+| **Total de testes** | 39 |
+| **Testes aprovados (passed)** | 36 |
+| **Testes reprovados (failed)** | 3 |
+| **Navegadores testados** | 3 |
 
 ### 3.2 Relatório DEPOIS da correção do defeito
 
-**Evidência:** _(inserir screenshot ou PDF do relatório HTML mostrando todos os testes passando)_
+**Evidência:** ![alt text](image-5.png)
 
 | Métrica | Valor |
 |---------|-------|
-| **Total de testes** | |
-| **Testes aprovados (passed)** | |
-| **Testes reprovados (failed)** | |
-| **Navegadores testados** | |
+| **Total de testes** | 39 |
+| **Testes aprovados (passed)** | 39 |
+| **Testes reprovados (failed)** | 0 |
+| **Navegadores testados** | 3 |
 
 ---
 
@@ -92,32 +98,32 @@
 
 | Campo | Descrição |
 |-------|-----------|
-| **Título do defeito** | _(ex: "Cálculo da média ignora a terceira nota")_ |
+| **Título do defeito** | _(Calcular média das três notas)_ |
 | **Severidade** | ☐ Crítica / ☐ Alta / ☐ Média / ☐ Baixa |
-| **Componente afetado** | _(ex: função `calcularMedia` em `docs/js/app.js`)_ |
-| **Passos para reproduzir** | 1. _(descrever passo a passo)_ |
-|                            | 2. |
-|                            | 3. |
-|                            | 4. |
-| **Resultado esperado** | _(o que deveria acontecer segundo a especificação)_ |
-| **Resultado obtido** | _(o que realmente acontece na aplicação)_ |
-| **Teste(s) que revelaram o defeito** | _(nome do(s) teste(s) que falharam)_ |
-| **Evidência visual** | _(inserir screenshot do teste falhando e/ou do Trace Viewer)_ |
+| **Componente afetado** | _(função `calcularMedia` em `docs/js/app.js`)_ |
+| **Passos para reproduzir** | 1. preenche o nome do aluno.
+|                            | 2. insere as notas 3,4 e 2
+|                            | 3. clica no botão de CADASTRO
+|                            | 4. pega o resultado final na tabela
+| **Resultado esperado** | _(o resultado final deveria dar 3)_ |
+| **Resultado obtido** | _(o resultado final deu 3,5)_ |
+| **Teste(s) que revelaram o defeito** | _(teste 4)_ |
+| **Evidência visual** | _(![alt text](image-3.png))_ |
 
 ### Análise do Trace Viewer
 
 | Aspecto | Observação |
 |---------|------------|
-| **Em qual asserção o teste falhou?** | |
-| **Valor esperado** | |
-| **Valor obtido** | |
-| **Screenshot do momento da falha** | _(inserir)_ |
+| **Em qual asserção o teste falhou?** | 4 |
+| **Valor esperado** | 3 |
+| **Valor obtido** | 3,5 |
+| **Screenshot do momento da falha** | ![alt text](image-4.png) |
 
 ### Exemplo de cálculo demonstrando o defeito
 
 | Notas inseridas | Média esperada (correta) | Média exibida (com defeito) | Diferença |
 |:---------------:|:------------------------:|:---------------------------:|:---------:|
-| N1=\_\_, N2=\_\_, N3=\_\_ | | | |
+| N1= \ 7 \, N2=\7\, N3=\_\_ | | | |
 | N1=\_\_, N2=\_\_, N3=\_\_ | | | |
 | N1=\_\_, N2=\_\_, N3=\_\_ | | | |
 
@@ -128,11 +134,11 @@
 | Item | Detalhes |
 |------|----------|
 | **Arquivo corrigido** | `docs/js/app.js` |
-| **Função corrigida** | |
-| **Código original (com defeito)** | _(copiar o trecho com o bug)_ |
-| **Código corrigido** | _(copiar o trecho corrigido)_ |
-| **Hash do commit** | |
-| **Mensagem do commit** | |
+| **Função corrigida** | calcularMedia |
+| **Código original (com defeito)** | _((nota1 + nota2) / 2)_ |
+| **Código corrigido** | _((nota 1 + nota 2 + nota3) / 3)_ |
+| **Hash do commit** | 34d77cb..50f59ac  |
+| **Mensagem do commit** | "fix: arruma calculo na media" |
 
 **Validação pós-correção:**
 

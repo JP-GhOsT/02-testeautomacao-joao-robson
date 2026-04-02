@@ -53,20 +53,18 @@ test.describe('QS Acadêmico — Sistema de Gestão de Notas', () => {
   // =========================
   // 4. Média aritmética correta
   // =========================
-  test('4) Calcular média das três notas e detectar bug', async ({ page }) => {
-    // Preenche o formulário
-    await page.getByLabel('Nome do Aluno').fill('Teste Media');
-    await page.getByLabel('Nota 1').fill('3');
-    await page.getByLabel('Nota 2').fill('4');
-    await page.getByLabel('Nota 3').fill('2');
+  test('4) Calcular média das três notas', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Pedro Santos');
+    await page.getByLabel('Nota 1').fill('8');
+    await page.getByLabel('Nota 2').fill('6');
+    await page.getByLabel('Nota 3').fill('10');
     await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    // Pega o valor da média da tabela e converte para número
-    const mediaText = await page.locator('#tabela-alunos tbody tr td').nth(4).textContent();
-    const media = parseFloat(mediaText?.replace(',', '.') || '0');
+    // Seleciona a célula da média
+    const media = page.locator('#tabela-alunos tbody tr td').nth(4);
 
-    // Espera a média correta de três notas
-    expect(media).toBeCloseTo((3 + 4 + 2) / 3, 2); // Deve falhar com o bug atual
+    // Usa regex para evitar problemas de WebKit (espaços invisíveis)
+    await expect(media).toHaveText(/^8\.00$/); // AQUI DEVE FALHAR se o cálculo estiver errado
   });
 
   // =========================
