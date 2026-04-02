@@ -1,9 +1,9 @@
 # Documento de Entregáveis — Automação de Testes com Playwright
 
-**Aluno(a):** _(preencher)_  
-**Dupla (se aplicável):** _(preencher)_  
-**Data:** ___/___/______  
-**Repositório (fork):** `https://github.com/<seu-usuario>/02-TesteAutomatizado`  
+**Aluno(a):** João Paulo Zimmermann Matsui
+**Dupla (se aplicável):** Robson dos Santos Damasceno Lisboa  
+**Data:** 02/04/2026  
+**Repositório (fork):** `https://github.com/JP-GhOsT/02-testeautomacao-joao-robson`  
 **GitHub Pages:** `https://<seu-usuario>.github.io/02-TesteAutomatizado/`
 
 ---
