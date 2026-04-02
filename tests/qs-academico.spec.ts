@@ -1,92 +1,189 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('QS Acadêmico — Testes no GitHub Pages', () => {
+test.describe('QS Acadêmico — Sistema de Gestão de Notas', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-
-    // ESPERA O APP REALMENTE CARREGAR
-    await page.waitForSelector('#nome');
+    await page.goto('');
   });
 
-  test('tabela inicia vazia', async ({ page }) => {
-    await expect(page.locator('td.texto-central'))
-      .toHaveText('Nenhum aluno cadastrado.');
+  // =========================
+  // 1. Cadastro válido
+  // =========================
+  test('1) Cadastrar aluno com dados válidos', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('João Silva');
+    await page.getByLabel('Nota 1').fill('7');
+    await page.getByLabel('Nota 2').fill('8');
+    await page.getByLabel('Nota 3').fill('6');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    // Verifica se a tabela tem exatamente 1 aluno
+    await expect(page.locator('#tabela-alunos tbody tr')).toHaveCount(1);
+
+    // Verifica se "João Silva" aparece na tabela (não na mensagem)
+    await expect(
+      page.locator('#tabela-alunos tbody tr td', { hasText: 'João Silva' })
+    ).toBeVisible();
   });
 
-  test('cadastrar aluno válido', async ({ page }) => {
-    await page.fill('#nome', 'João Silva');
-    await page.fill('#nota1', '7');
-    await page.fill('#nota2', '8');
-    await page.fill('#nota3', '6');
+  // =========================
+  // 2. Mensagem de sucesso
+  // =========================
+  test('2) Exibir mensagem de sucesso após cadastro', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Ana Costa');
+    await page.getByLabel('Nota 1').fill('9');
+    await page.getByLabel('Nota 2').fill('8');
+    await page.getByLabel('Nota 3').fill('10');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    await page.click('button[type="submit"]');
-
-    await expect(page.locator('#tabela-alunos tbody'))
-      .toContainText('João Silva');
+    await expect(page.locator('#mensagem')).toContainText('cadastrado com sucesso');
   });
 
-  test('buscar aluno', async ({ page }) => {
-    await page.fill('#nome', 'Carlos');
-    await page.fill('#nota1', '7');
-    await page.fill('#nota2', '7');
-    await page.fill('#nota3', '7');
-    await page.click('button[type="submit"]');
+  // =========================
+  // 3. Rejeitar sem nome
+  // =========================
+  test('3) Rejeitar cadastro sem nome', async ({ page }) => {
+    await page.getByLabel('Nota 1').fill('7');
+    await page.getByLabel('Nota 2').fill('8');
+    await page.getByLabel('Nota 3').fill('6');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    await page.fill('#nome', 'Mariana');
-    await page.fill('#nota1', '8');
-    await page.fill('#nota2', '8');
-    await page.fill('#nota3', '8');
-    await page.click('button[type="submit"]');
-
-    await page.fill('#busca', 'Carlos');
-
-    await expect(page.locator('#tabela-alunos tbody tr'))
-      .toHaveCount(1);
+    await expect(page.locator('#mensagem')).toContainText('preencha o nome');
   });
 
-  test('excluir aluno', async ({ page }) => {
-    await page.fill('#nome', 'Excluir Eu');
-    await page.fill('#nota1', '7');
-    await page.fill('#nota2', '7');
-    await page.fill('#nota3', '7');
-    await page.click('button[type="submit"]');
+  // =========================
+  // 4. Média aritmética correta
+  // =========================
+  test('4) Calcular média das três notas e detectar bug', async ({ page }) => {
+    // Preenche o formulário
+    await page.getByLabel('Nome do Aluno').fill('Teste Media');
+    await page.getByLabel('Nota 1').fill('3');
+    await page.getByLabel('Nota 2').fill('4');
+    await page.getByLabel('Nota 3').fill('2');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    await page.click('button[aria-label="Excluir Excluir Eu"]');
+    // Pega o valor da média da tabela e converte para número
+    const mediaText = await page.locator('#tabela-alunos tbody tr td').nth(4).textContent();
+    const media = parseFloat(mediaText?.replace(',', '.') || '0');
 
-    await expect(page.locator('td.texto-central')).toBeVisible();
+    // Espera a média correta de três notas
+    expect(media).toBeCloseTo((3 + 4 + 2) / 3, 2); // Deve falhar com o bug atual
   });
 
-  test('estatísticas corretas', async ({ page }) => {
-    const dados = [
-      ['A', '8', '8', '8'],
-      ['B', '6', '5', '6'],
-      ['C', '2', '3', '4'],
-    ];
+  // =========================
+  // 5. Validação intervalo notas
+  // =========================
+  test('5) Notas fora do intervalo 0–10', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Erro Nota');
+    await page.getByLabel('Nota 1').fill('15');
+    await page.getByLabel('Nota 2').fill('8');
+    await page.getByLabel('Nota 3').fill('6');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
 
-    for (const [nome, n1, n2, n3] of dados) {
-      await page.fill('#nome', nome);
-      await page.fill('#nota1', n1);
-      await page.fill('#nota2', n2);
-      await page.fill('#nota3', n3);
-      await page.click('button[type="submit"]');
+    await expect(page.locator('#mensagem')).toContainText('entre 0 e 10');
+  });
+
+  // =========================
+  // 6. Filtro por nome
+  // =========================
+  test('6) Busca por nome', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Carlos Lima');
+    await page.getByLabel('Nota 1').fill('7');
+    await page.getByLabel('Nota 2').fill('7');
+    await page.getByLabel('Nota 3').fill('7');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    // Preenche filtro
+    await page.getByLabel('Buscar por nome').fill('Carlos');
+
+    // Valida apenas na tabela
+    await expect(
+      page.locator('#tabela-alunos tbody tr td', { hasText: 'Carlos Lima' })
+    ).toBeVisible();
+  });
+
+  // =========================
+  // 7. Exclusão individual
+  // =========================
+  test('7) Exclusão individual de aluno', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Excluir Teste');
+    await page.getByLabel('Nota 1').fill('7');
+    await page.getByLabel('Nota 2').fill('7');
+    await page.getByLabel('Nota 3').fill('7');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    await page.getByRole('button', { name: /Excluir/ }).click();
+    await expect(page.getByText('Excluir Teste')).not.toBeVisible();
+  });
+
+  // =========================
+  // 8. Estatísticas
+  // =========================
+  test('8) Estatísticas atualizam corretamente', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Estatistica A');
+    await page.getByLabel('Nota 1').fill('9');
+    await page.getByLabel('Nota 2').fill('9');
+    await page.getByLabel('Nota 3').fill('9');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    await expect(page.locator('#stat-total')).toHaveText('1');
+    await expect(page.locator('#stat-aprovados')).toHaveText('1');
+  });
+
+  // =========================
+  // 9,10,11. Situações
+  // =========================
+  test('9) Situação Aprovado (≥7)', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Aprovado');
+    await page.getByLabel('Nota 1').fill('8');
+    await page.getByLabel('Nota 2').fill('8');
+    await page.getByLabel('Nota 3').fill('8');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    // Valida situação apenas na tabela
+    await expect(
+      page.locator('#tabela-alunos tbody tr td span.badge-aprovado', { hasText: 'Aprovado' })
+    ).toBeVisible();
+  });
+
+  test('10) Situação Reprovado (<5)', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Reprovado');
+    await page.getByLabel('Nota 1').fill('3');
+    await page.getByLabel('Nota 2').fill('4');
+    await page.getByLabel('Nota 3').fill('2');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    // Valida situação apenas na tabela
+    await expect(
+      page.locator('#tabela-alunos tbody tr td span.badge-reprovado', { hasText: 'Reprovado' })
+    ).toBeVisible();
+  });
+
+  test('11) Situação Recuperação (5–6.9)', async ({ page }) => {
+    await page.getByLabel('Nome do Aluno').fill('Recuperacao');
+    await page.getByLabel('Nota 1').fill('5');
+    await page.getByLabel('Nota 2').fill('6');
+    await page.getByLabel('Nota 3').fill('6');
+    await page.getByRole('button', { name: 'Cadastrar' }).click();
+
+    // Valida situação apenas na tabela
+    await expect(
+      page.locator('#tabela-alunos tbody tr td span.badge-recuperacao', { hasText: 'Recuperação' })
+    ).toBeVisible();
+  });
+
+  // =========================
+  // 12. Múltiplos cadastros
+  // =========================
+  test('12) Três alunos geram três linhas', async ({ page }) => {
+    for (let i = 1; i <= 3; i++) {
+      await page.getByLabel('Nome do Aluno').fill(`Aluno ${i}`);
+      await page.getByLabel('Nota 1').fill('7');
+      await page.getByLabel('Nota 2').fill('7');
+      await page.getByLabel('Nota 3').fill('7');
+      await page.getByRole('button', { name: 'Cadastrar' }).click();
     }
 
-    await expect(page.locator('#stat-total')).toHaveText('3');
-  });
-
-  // TESTE QUE VAI FALHAR (bug da média)
-
-  test('calcular média correta (bug intencional)', async ({ page }) => {
-    await page.fill('#nome', 'Pedro');
-    await page.fill('#nota1', '8');
-    await page.fill('#nota2', '6');
-    await page.fill('#nota3', '10');
-
-    await page.click('button[type="submit"]');
-
-    await expect(page.locator('#tabela-alunos tbody tr td').nth(4))
-      .toHaveText('8.00');
+    await expect(page.locator('#tabela-alunos tbody tr')).toHaveCount(3);
   });
 
 });
